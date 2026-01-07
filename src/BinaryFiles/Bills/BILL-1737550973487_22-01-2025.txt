@@ -1,0 +1,17 @@
+=========================================
+                ELECTRONIC STORE          
+=========================================
+Bill Number: BILL-1737550973487
+Cashier: Ema
+Sector: Home Electronics
+Date: 22-01-2025
+-----------------------------------------
+Items:
+Item Name            Category   Quantity   Price     
+-----------------------------------------
+Shark Navigator Lift-Away Professional Vacuum Vacuum Cleaners 1          199.99    
+-----------------------------------------
+Total Amount: 199.99
+=========================================
+          THANK YOU FOR SHOPPING         
+=========================================

@@ -1,0 +1,19 @@
+=========================================
+                ELECTRONIC STORE          
+=========================================
+Bill Number: BILL-1737550194086
+Cashier: Ema
+Sector: Home Electronics
+Date: 22-01-2025
+-----------------------------------------
+Items:
+Item Name            Category   Quantity   Price     
+-----------------------------------------
+LG 65" OLED 4K TV    TVs        1          1299.99   
+Sony 43" Full HD LED TV TVs        1          349.99    
+Shark Navigator Lift-Away Professional Vacuum Vacuum Cleaners 1          199.99    
+-----------------------------------------
+Total Amount: 1849.97
+=========================================
+          THANK YOU FOR SHOPPING         
+=========================================

@@ -1,0 +1,17 @@
+=========================================
+                ELECTRONIC STORE          
+=========================================
+Bill Number: BILL-1737567944178
+Cashier: Andrew
+Sector: Mobile & Gadgets
+Date: 22-01-2025
+-----------------------------------------
+Items:
+Item Name            Category   Quantity   Price     
+-----------------------------------------
+Apple iPhone 16 Pro Max Smartphones 3          1299.99   
+-----------------------------------------
+Total Amount: 3899.97
+=========================================
+          THANK YOU FOR SHOPPING         
+=========================================

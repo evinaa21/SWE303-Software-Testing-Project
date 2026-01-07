@@ -1,0 +1,23 @@
+Bill Number: BILL-1737494454249, Date: 21-01-2025, Total Amount: 1999.96
+Bill Number: 2025-01-21, Date: Sales Report, Total Amount: 0.0
+Bill Number: 2025-01-21, Date: Sales Report, Total Amount: 0.0
+Bill Number: 2025-01-21, Date: Sales Report, Total Amount: 0.0
+Bill Number: 2025-01-21, Date: Sales Report, Total Amount: 0.0
+Bill Number: 2025-01-21, Date: Sales Report, Total Amount: 0.0
+Bill Number: 2025-01-21, Date: Sales Report, Total Amount: 0.0
+Bill Number: 2025-01-21, Date: Sales Report, Total Amount: 0.0
+Bill Number: 2025-01-21, Date: Sales Report, Total Amount: 0.0
+Bill Number: Sales Report - Time Period: Last 7 Days, Date: 2025-01-21, Total Amount: 0.0
+Bill Number: Sales Report - Time Period: Last 7 Days, Date: 2025-01-21, Total Amount: 0.0
+Bill Number: BILL-1737495574530, Date: 21-01-2025, Total Amount: 1299.99
+Bill Number: Sales Report - Time Period: Last 7 Days, Date: 2025-01-21, Total Amount: 0.0
+Bill Number: BILL-1737495884691, Date: 21-01-2025, Total Amount: 599.99
+Bill Number: Sales Report - Time Period: Last 7 Days, Date: 2025-01-21, Total Amount: 3899.9399999999996
+Bill Number: Sales Report - Time Period: Last 7 Days, Date: 2025-01-21, Total Amount: 7799.879999999999
+Bill Number: Sales Report - Time Period: Last Month, Date: 2025-01-21, Total Amount: 15599.759999999998
+Bill Number: Sales Report - Time Period: Last Month, Date: 2025-01-21, Total Amount: 31199.519999999997
+Bill Number: Sales Report - Time Period: Last Month, Date: 2025-01-21, Total Amount: 62399.03999999999
+Bill Number: Sales Report - Time Period: Last 7 Days, Date: 2025-01-21, Total Amount: 3899.9399999999996
+Bill Number: Sales Report - Time Period: Last 7 Days, Date: 2025-01-21, Total Amount: 3899.9399999999996
+Bill Number: Sales Report - Time Period: Custom, Date: 2025-01-21, Total Amount: 3899.9399999999996
+Bill Number: BILL-1737496570015, Date: 21-01-2025, Total Amount: 1299.99
