@@ -1,4 +1,4 @@
-# Electronics-Store
+The primary focus of this phase of the project is to implement a comprehensive Software Quality Assurance (SQA) lifecycle, including Static Testing, dynamic Testing Analysis, and a full Unit, Integration, and System testing suite.
 The Electronics Store Management System is designed to manage essential operations of an electronic store.
 This software will track and manage items in the store, sales transactions, inventory, and user roles, ensuring smooth
 and efficient business operations.
