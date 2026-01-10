@@ -14,8 +14,8 @@ import java.util.Calendar;
 import java.util.Date;
 
 /**
- * FileHandler with Static Analysis fixes for EI_EXPOSE_REP2.
- * Focuses on defensive copying of mutable collections and objects.
+ * FileHandler with Static Analysis fixes for EI_EXPOSE_REP2 and DateFormat thread-safety.
+ * Focuses on defensive copying of mutable collections and resolving static DateFormat issues.
  */
 public class FileHandler {
 	// Constants for file paths
@@ -27,8 +27,13 @@ public class FileHandler {
 	// Final reference to a helper class
 	private final EmployeeFileHandler EmployeeFile = new EmployeeFileHandler();
 
-	// Date format for parsing and saving dates
-	private static final SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
+	/**
+	 * Fix for SpotBugs: Call to method of static java.text.DateFormat.
+	 * SimpleDateFormat is not thread-safe. By using ThreadLocal, each thread
+	 * gets its own instance, preventing potential race conditions during formatting/parsing.
+	 */
+	private static final ThreadLocal<SimpleDateFormat> threadSafeFormat = 
+			ThreadLocal.withInitial(() -> new SimpleDateFormat("dd-MM-yyyy"));
 
 	public FileHandler() {
 	}
@@ -50,8 +55,7 @@ public class FileHandler {
 	// Save the entire inventory to the binary file
 	public void saveInventory(ArrayList<Item> inventory) {
 		try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(INVENTORY_FILE))) {
-			// Fix: Defensive copy of the list before writing if necessary, 
-			// though writeObject handles serialization, passing a copy is safer.
+			// Fix: Defensive copy of the list before writing
 			oos.writeObject(new ArrayList<>(inventory)); 
 			System.out.println("Inventory saved successfully to binary file: " + INVENTORY_FILE);
 		} catch (IOException e) {
@@ -134,7 +138,6 @@ public class FileHandler {
 	        return bills;
 	    }
 
-	    // Fix: Using a fixed snapshot of "today" for comparison
 	    Date today = new Date();
 
 	    for (File billFile : billFiles) {
@@ -166,7 +169,8 @@ public class FileHandler {
 	                billNumber = line.split(":")[1].trim();
 	            } else if (line.startsWith("Date:")) {
 	                String dateString = line.split(":")[1].trim();
-	                saleDate = dateFormat.parse(dateString); 
+	                // Fix: Accessed via ThreadLocal instance to resolve static DateFormat issues
+	                saleDate = threadSafeFormat.get().parse(dateString); 
 	            } else if (line.startsWith("Total Amount:")) {
 	                totalAmount = Double.parseDouble(line.split(":")[1].trim());
 	            } else if (line.startsWith("Items:")) {
@@ -300,7 +304,8 @@ public class FileHandler {
 	}
 
 	public void saveBill(String billNumber, ArrayList<Item> items, double total, String cashierName, String sector) {
-		String date = dateFormat.format(new Date());
+		// Fix: Thread-safe formatting via ThreadLocal
+		String date = threadSafeFormat.get().format(new Date());
 		String fileName = BILL_DIRECTORY + billNumber + "_" + date + ".txt";
 		
 		try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileName))) {
