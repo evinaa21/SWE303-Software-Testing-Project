@@ -7,7 +7,7 @@ import java.util.List;
 /**
  * Bill represents a sales transaction in the Point of Sale system.
  * Fixed SpotBugs EI_EXPOSE_REP by ensuring proper encapsulation of mutable collections.
- * Analyzed in Part 2 for Boundary Value Testing and MC/DC analysis. 
+ * Analyzed in Part 2 for Boundary Value Testing and MC/DC analysis.
  */
 public class Bill {
     private String billId;
