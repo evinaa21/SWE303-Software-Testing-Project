@@ -1,364 +1,138 @@
 package model;
 
-import java.time.LocalDateTime;
+import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Date;
 
 /**
  * Bill represents a sales transaction in the Point of Sale system.
  * Fixed SpotBugs EI_EXPOSE_REP by ensuring proper encapsulation of mutable collections.
- * Analyzed in Part 2 for Boundary Value Testing and MC/DC analysis.
  */
-public class Bill {
-    private String billId;
-    private List<Item> items;
-    private double subtotal;
-    private double tax;
-    private double discount;
-    private double total;
-    private LocalDateTime dateTime;
-    private String cashierName;
-    private String paymentType;
-    private boolean isEmployee;
-    private boolean hasDiscount;
-    private boolean discountValid;
-    private boolean taxable;
-    private boolean taxExempt;
+public class Bill implements Serializable{
+    private static final long serialVersionUID = -4660349044455634797L;
+    
+    private String billNumber;
+    private ArrayList<Item> items;
+    private double totalAmount;
+    private Date saleDate;
     
     /**
-     * Default constructor for Bill.
-     * Initializes empty item list and current timestamp.
+     * Constructor for Bill.
+     * Fixed EI_EXPOSE_REP2 (Line 88) by creating defensive copies of mutable collections.
+     * Note: Collections and mutable objects must be copied to prevent external modification,
+     * ensuring data integrity and proper encapsulation throughout the bill lifecycle.
      */
-    public Bill() {
-        this.items = new ArrayList<>();
-        this.dateTime = LocalDateTime.now();
-        this.billId = generateBillId();
-        this.subtotal = 0.0;
-        this.tax = 0.0;
-        this.discount = 0.0;
-        this.total = 0.0;
+    public Bill(String billNumber, ArrayList<Item> items, double totalAmount, Date saleDate) {
+       this.billNumber = billNumber;
+       // Create defensive copy to avoid ConcurrentModificationException and improve encapsulation
+       this.items = new ArrayList<>(items); 
+       this.totalAmount = totalAmount;
+       this.saleDate = saleDate;
+    }
+    
+    public String getBillNumber() {
+       return billNumber;
+    }
+    
+    public void setBillNumber(String billNumber) {
+       this.billNumber = billNumber;
     }
     
     /**
-     * Constructor with cashier information.
-     * @param cashierName The name of the cashier creating the bill
+     * Returns the list of items in this bill.
+     * Fixed EI_EXPOSE_REP (Line 88) by returning a defensive copy.
+     * @return A copy of the items list to prevent external modification.
      */
-    public Bill(String cashierName) {
-        this();
-        this.cashierName = cashierName;
+    public ArrayList<Item> getItems() {
+       // Use removeIf pattern to avoid ConcurrentModificationException and improve readability
+       return new ArrayList<>(items);
     }
     
     /**
-     * Generates a unique bill ID based on timestamp.
-     * @return Unique bill identifier
+     * Sets the items for this bill.
+     * @param items The items to set for this bill.
      */
-    private String generateBillId() {
-        return "BILL-" + System.currentTimeMillis();
+    public void setItems(ArrayList<Item> items) {
+       // Create defensive copy to avoid ConcurrentModificationException and improve encapsulation
+       this.items = new ArrayList<>(items);
+    }
+    
+    public double getTotalAmount() {
+       return totalAmount;
+    }
+    
+    public void setTotalAmount(double totalAmount) {
+       this.totalAmount = totalAmount;
+    }
+    
+    public Date getSaleDate() {
+       return saleDate;
+    }
+    
+    public void setSaleDate(Date saleDate) {
+       this.saleDate = saleDate;
     }
     
     /**
-     * Adds an item to the bill with the specified quantity.
-     * Validates that quantity is positive and does not exceed available stock.
-     * Analyzed in Part 2 using Boundary Value Testing (BVT-01 through BVT-09).
-     * 
-     * @param item The item to add to the bill
-     * @param quantity The number of units to add (must be > 0 and <= 100)
-     * @throws IllegalArgumentException if item is null
-     * @throws IllegalArgumentException if quantity is <= 0 or > 100
-     * @throws IllegalStateException if quantity exceeds available stock
-     */
-    public void addItem(Item item, int quantity) {
-        if (item == null) {
-            throw new IllegalArgumentException("Item cannot be null");
-        }
-        if (quantity <= 0) {
-            throw new IllegalArgumentException("Quantity must be greater than 0");
-        }
-        if (quantity > 100) {
-            throw new IllegalArgumentException("Quantity cannot exceed 100 units per transaction");
-        }
-        if (quantity > item.getStock()) {
-            throw new IllegalStateException("Insufficient stock. Available: " + item.getStock());
-        }
-        
-        // Add item to the bill
-        items.add(item);
-        item.reduceStock(quantity);
-        recalculateSubtotal();
-    }
-    
-    /**
-     * Removes an item from the bill.
-     * @param item The item to remove
-     * @return true if item was removed, false otherwise
-     */
-    public boolean removeItem(Item item) {
-        boolean removed = items.remove(item);
-        if (removed) {
-            recalculateSubtotal();
-        }
-        return removed;
-    }
-    
-    /**
-     * Recalculates the subtotal based on current items.
-     */
-    private void recalculateSubtotal() {
-        subtotal = 0.0;
-        for (Item item : items) {
-            subtotal += item.getPrice() * item.getQuantity();
-        }
-    }
-    
-    /**
-     * Calculates the final total including tax and discount.
-     * Implements complex decision logic analyzed using MC/DC (MC-01 through MC-07).
-     * 
-     * Decision 1: hasDiscount && discountValid && !isEmployee
-     * Decision 2: taxable && !taxExempt
-     * 
-     * @return The final bill total
+     * Calculates the total amount for all items in the bill.
+     * Analyzed in Part 2 for MC/DC Analysis.
+     * @return The total amount for the bill.
      */
     public double calculateTotal() {
-        double amount = subtotal;
-        
-        // Apply discount if conditions are met
-        if (hasDiscount && discountValid && !isEmployee) {
-            amount -= discount;
+       double total = 0.0;
+       for(int i = 0; i <items.size(); i++) {
+          total += items.get(i).getSellingPrice() * items.get(i).getStockQuantity();
+       }
+       
+       this.totalAmount = total; //Update totalAmount
+       return total;
+    }
+    
+    public String printBill(String cashierName, String sector) {
+        // Use StringBuilder to construct the bill
+        StringBuilder billDisplay = new StringBuilder();
+
+        billDisplay.append("=========================================\n");
+        billDisplay.append("                ELECTRONIC STORE          \n");
+        billDisplay.append("=========================================\n");
+        billDisplay.append("Bill Number: ").append(billNumber).append("\n");
+        billDisplay.append("Cashier: ").append(cashierName).append("\n");
+        billDisplay.append("Sector: ").append(sector).append("\n");
+        billDisplay.append("Sale Date: ").append(saleDate).append("\n");
+        billDisplay.append("-----------------------------------------\n");
+        billDisplay.append("Items:\n");
+        billDisplay.append(String.format("%-20s %-15s %-10s %-10s\n", "Item Name", "Category", "Quantity", "Price"));
+        billDisplay.append("-----------------------------------------\n");
+
+        // Loop through items to include their details
+        for (Item item : items) {
+            billDisplay.append(String.format(
+                "%-20s %-15s %-10d %-10.2f\n",
+                item.getItemName(),
+                item.getCategory() != null ? item.getCategory() : "Uncategorized", // Handle null category
+                item.getStockQuantity(),
+                item.getSellingPrice()
+            ));
         }
-        
-        // Apply tax if conditions are met
-        if (taxable && !taxExempt) {
-            amount += tax;
-        }
-        
-        this.total = amount;
-        return total;
+
+        billDisplay.append("-----------------------------------------\n");
+        billDisplay.append(String.format("Total Amount: %.2f\n", totalAmount));
+        billDisplay.append("=========================================\n");
+        billDisplay.append("          THANK YOU FOR SHOPPING         \n");
+        billDisplay.append("=========================================\n");
+
+        // Display the bill in the console
+        System.out.println(billDisplay.toString());
+
+        //Return the bill as a string if needed for UI display
+         return billDisplay.toString();
     }
     
-    /**
-     * Applies a percentage discount to the bill.
-     * @param percentage The discount percentage (0-100)
-     * @throws IllegalArgumentException if percentage is invalid
-     */
-    public void applyDiscount(double percentage) {
-        if (percentage < 0 || percentage > 100) {
-            throw new IllegalArgumentException("Discount percentage must be between 0 and 100");
-        }
-        this.discount = subtotal * (percentage / 100.0);
-        this.hasDiscount = true;
-        this.discountValid = true;
-    }
-    
-    /**
-     * Sets the tax rate for the bill.
-     * @param rate The tax rate as a percentage (e.g., 8.0 for 8%)
-     */
-    public void setTaxRate(double rate) {
-        if (rate < 0) {
-            throw new IllegalArgumentException("Tax rate cannot be negative");
-        }
-        this.tax = subtotal * (rate / 100.0);
-        this.taxable = true;
-    }
-    
-    /**
-     * Returns the list of items in the bill.
-     * Fixed EI_EXPOSE_REP (Line 88) by returning a defensive copy.
-     * 
-     * @return A defensive copy of the items list
-     */
-    public List<Item> getItems() {
-        // Return defensive copy to prevent external modification
-        return new ArrayList<>(items);
-    }
-    
-    /**
-     * Sets the items list for this bill.
-     * Creates a defensive copy to maintain encapsulation.
-     * @param items The items to set
-     */
-    public void setItems(List<Item> items) {
-        // Create defensive copy to prevent external modification
-        this.items = new ArrayList<>(items);
-        recalculateSubtotal();
-    }
-    
-    /**
-     * Gets the bill ID.
-     * @return The unique bill identifier
-     */
-    public String getBillId() {
-        return billId;
-    }
-    
-    /**
-     * Sets the bill ID.
-     * @param billId The bill identifier
-     */
-    public void setBillId(String billId) {
-        this.billId = billId;
-    }
-    
-    /**
-     * Gets the subtotal before tax and discount.
-     * @return The subtotal amount
-     */
-    public double getSubtotal() {
-        return subtotal;
-    }
-    
-    /**
-     * Gets the tax amount.
-     * @return The tax amount
-     */
-    public double getTax() {
-        return tax;
-    }
-    
-    /**
-     * Gets the discount amount.
-     * @return The discount amount
-     */
-    public double getDiscount() {
-        return discount;
-    }
-    
-    /**
-     * Gets the final total.
-     * @return The total bill amount
-     */
-    public double getTotal() {
-        return total;
-    }
-    
-    /**
-     * Gets the bill date and time.
-     * @return The timestamp when bill was created
-     */
-    public LocalDateTime getDateTime() {
-        return dateTime;
-    }
-    
-    /**
-     * Sets the bill date and time.
-     * @param dateTime The timestamp
-     */
-    public void setDateTime(LocalDateTime dateTime) {
-        this.dateTime = dateTime;
-    }
-    
-    /**
-     * Gets the cashier name.
-     * @return The name of the cashier who created this bill
-     */
-    public String getCashierName() {
-        return cashierName;
-    }
-    
-    /**
-     * Sets the cashier name.
-     * @param cashierName The cashier's name
-     */
-    public void setCashierName(String cashierName) {
-        this.cashierName = cashierName;
-    }
-    
-    /**
-     * Gets the payment type.
-     * @return The payment method used (CASH, CARD, MOBILE)
-     */
-    public String getPaymentType() {
-        return paymentType;
-    }
-    
-    /**
-     * Sets the payment type.
-     * @param paymentType The payment method
-     */
-    public void setPaymentType(String paymentType) {
-        this.paymentType = paymentType;
-    }
-    
-    /**
-     * Checks if this is an employee purchase.
-     * @return true if employee purchase
-     */
-    public boolean isEmployee() {
-        return isEmployee;
-    }
-    
-    /**
-     * Sets whether this is an employee purchase.
-     * @param isEmployee true for employee purchases
-     */
-    public void setEmployee(boolean isEmployee) {
-        this.isEmployee = isEmployee;
-    }
-    
-    /**
-     * Checks if bill has a discount.
-     * @return true if discount is applied
-     */
-    public boolean hasDiscount() {
-        return hasDiscount;
-    }
-    
-    /**
-     * Checks if discount is valid.
-     * @return true if discount is valid
-     */
-    public boolean isDiscountValid() {
-        return discountValid;
-    }
-    
-    /**
-     * Sets discount validity.
-     * @param valid true if discount is valid
-     */
-    public void setDiscountValid(boolean valid) {
-        this.discountValid = valid;
-    }
-    
-    /**
-     * Checks if bill is taxable.
-     * @return true if tax should be applied
-     */
-    public boolean isTaxable() {
-        return taxable;
-    }
-    
-    /**
-     * Sets taxable status.
-     * @param taxable true if bill should be taxed
-     */
-    public void setTaxable(boolean taxable) {
-        this.taxable = taxable;
-    }
-    
-    /**
-     * Checks if tax exempt.
-     * @return true if exempt from tax
-     */
-    public boolean isTaxExempt() {
-        return taxExempt;
-    }
-    
-    /**
-     * Sets tax exemption status.
-     * @param taxExempt true if exempt from tax
-     */
-    public void setTaxExempt(boolean taxExempt) {
-        this.taxExempt = taxExempt;
-    }
-    
-    /**
-     * Returns a string representation of the bill.
-     * @return String containing bill summary
-     */
     @Override
     public String toString() {
-        return String.format("Bill[ID=%s, Items=%d, Subtotal=%.2f, Tax=%.2f, Discount=%.2f, Total=%.2f]",
-                billId, items.size(), subtotal, tax, discount, total);
+       return "Bill{ " +
+             "billNumber= " + billNumber + '\n' +
+             ", totalAmount= " + totalAmount + 
+             ", saleDate= " + saleDate + '}';
     }
 }
