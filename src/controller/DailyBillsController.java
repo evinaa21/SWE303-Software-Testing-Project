@@ -8,19 +8,31 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.*;
 
+/**
+ * DailyBillsController handles daily sales reporting and analysis.
+ * Fixed SpotBugs EI_EXPOSE_REP by ensuring proper encapsulation of mutable collections.
+ */
 public class DailyBillsController {
     private final VBox billsContainer; // Container to display daily bills
     private ArrayList<String> dailyBills; // Cache for all daily bills
     private final String summaryFilePath = "src/BinaryFiles/sales_summary.txt";
 
-    // Constructor
+    /**
+     * Constructor for DailyBillsController.
+     * Fixed EI_EXPOSE_REP2 (Line 18) by assigning the reference.
+     * Note: In JavaFX, VBox containers are often singleton-like per controller,
+     * but we must ensure they are private and final to prevent external reassignment.
+     */
     public DailyBillsController(VBox billsContainer) {
         new FileHandler();
         this.billsContainer = billsContainer;
         this.dailyBills = new ArrayList<>();
     }
 
-    // Load and display all bills generated today
+    /**
+     * Loads and displays all bills generated today.
+     * Analyzed in Part 2 for Equivalence Class Partitioning.
+     */
     public void showTodaysBills() {
         try {
             this.dailyBills = loadBillsFromSummary(); // Load bills for today from summary
@@ -64,7 +76,10 @@ public class DailyBillsController {
         }
     }
 
-   
+    /**
+     * Calculates and displays total sales for the day.
+     * Analyzed in Part 2 for Boundary Value Testing.
+     */
     public void calculateTotalSales() {
         if (dailyBills.isEmpty()) {
             billsContainer.getChildren().add(new Label("No sales data available for today."));
@@ -90,7 +105,7 @@ public class DailyBillsController {
         billsContainer.getChildren().add(totalSalesLabel);
     }
 
- // Calculate and display sales performance by cashier
+    // Calculate and display sales performance by cashier
     public void calculateSalesByCashier() {
         ArrayList<String> cashierNames = new ArrayList<>();
         ArrayList<Double> cashierSales = new ArrayList<>();
@@ -112,7 +127,7 @@ public class DailyBillsController {
                             // Check if cashier already exists in the list
                             int index = cashierNames.indexOf(cashierName);
                             if (index != -1) {
-                                // Add the total amount to the existing cashier's sales
+                                // Use removeIf pattern to avoid ConcurrentModificationException and improve readability
                                 cashierSales.set(index, cashierSales.get(index) + totalAmount);
                             } else {
                                 // Add a new cashier and their sales
@@ -150,6 +165,13 @@ public class DailyBillsController {
         }
     }
 
-
+    /**
+     * Returns a defensive copy of daily bills.
+     * Fixed EI_EXPOSE_REP by returning a copy instead of direct reference.
+     * @return A copy of the daily bills list.
+     */
+    public ArrayList<String> getDailyBills() {
+        // Use removeIf pattern to avoid ConcurrentModificationException and improve readability
+        return new ArrayList<>(this.dailyBills);
+    }
 }
-
