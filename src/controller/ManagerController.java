@@ -15,6 +15,14 @@ import view.*;
 
 import java.util.ArrayList;
 
+/**
+ * Represents the Graphical User Interface (GUI) for creating and managing bills.
+ * <p>
+ * This view handles the layout of input fields, buttons, and the display of
+ * added items. It interacts with the {@link CreateBillController} to process logic.
+ * </p>
+ */
+
 public class ManagerController {
     private Stage primaryStage;
     private Manager manager;

@@ -14,171 +14,178 @@ import model.Cashier;
 import model.Sector;
 
 public class CreateBillView {
-	private BorderPane mainLayout; 
-	private VBox itemsContainer; 
-	private ComboBox<String> categoryDropdown; 
-	private ComboBox<String> itemDropdown; 
-	private TextField quantityField; 
-	private TextField totalField; 
-	private Button addItemButton;
-	private Button finalizeBillButton; 
+    private BorderPane mainLayout;
+    private VBox itemsContainer;
+    private ComboBox<String> categoryDropdown;
+    private ComboBox<String> itemDropdown;
+    private TextField quantityField;
+    private TextField totalField;
+    private Button addItemButton;
+    private Button finalizeBillButton;
 
-	private Sector sector;
-	private Cashier cashier;
-	private CreateBillController createBillController;
+    private Sector sector;
+    private Cashier cashier;
+    private CreateBillController createBillController;
 
-	public CreateBillView(Sector sector) {
-		this.sector = sector;
+    public CreateBillView(Sector sector) {
+        this.sector = sector;
 
-		mainLayout = new BorderPane(); 
-		mainLayout.setPadding(new Insets(10)); 
+        mainLayout = new BorderPane();
+        mainLayout.setPadding(new Insets(10));
 
-		// Input section 
-		HBox inputBox = new HBox(10); 
-		inputBox.setAlignment(Pos.CENTER_LEFT); 
+        // Input section
+        HBox inputBox = new HBox(10);
+        inputBox.setAlignment(Pos.CENTER_LEFT);
 
-		Label categoryLabel = new Label("Category:");
-		categoryDropdown = new ComboBox<>();
-		categoryDropdown.setPromptText("Select Category");
+        Label categoryLabel = new Label("Category:");
+        categoryDropdown = new ComboBox<>();
+        categoryDropdown.setPromptText("Select Category");
 
 
-		Label itemLabel = new Label("Item:");
-		itemDropdown = new ComboBox<>();
-		itemDropdown.setPromptText("Select Item");
+        Label itemLabel = new Label("Item:");
+        itemDropdown = new ComboBox<>();
+        itemDropdown.setPromptText("Select Item");
 
-		Label quantityLabel = new Label("Quantity:");
-		quantityField = new TextField();
-		quantityField.setPromptText("Enter quantity");
+        Label quantityLabel = new Label("Quantity:");
+        quantityField = new TextField();
+        quantityField.setPromptText("Enter quantity");
 
-		addItemButton = new Button("Add Item");
-		addItemButton.setStyle("-fx-background-color: #007BFF; -fx-text-fill: white; -fx-font-weight: bold;");
+        addItemButton = new Button("Add Item");
+        addItemButton.setStyle("-fx-background-color: #007BFF; -fx-text-fill: white; -fx-font-weight: bold;");
 
-		inputBox.getChildren().addAll(categoryLabel, categoryDropdown, itemLabel, itemDropdown, quantityLabel,
-				quantityField, addItemButton);
+        inputBox.getChildren().addAll(categoryLabel, categoryDropdown, itemLabel, itemDropdown, quantityLabel,
+                quantityField, addItemButton);
 
-		
-		itemsContainer = new VBox(10);
-		itemsContainer.setPadding(new Insets(10)); 
-		itemsContainer.setStyle("-fx-background-color: #f4f4f4;"); // Background color for visibility
 
-		
-		HBox totalBox = new HBox(10); // Horizontal layout for total and button
-		totalBox.setAlignment(Pos.CENTER_RIGHT); // Align elements to the right
+        itemsContainer = new VBox(10);
+        itemsContainer.setPadding(new Insets(10));
+        itemsContainer.setStyle("-fx-background-color: #f4f4f4;"); // Background color for visibility
 
-		
-		Label totalLabel = new Label("Total:");
-		totalField = new TextField("0.00"); // Default value for total
-		totalField.setEditable(false); // Prevent user from editing the total
 
-		// Button to finalize the bill
-		finalizeBillButton = new Button("Finalize Bill");
-		finalizeBillButton.setStyle("-fx-background-color: #28A745; -fx-text-fill: white; -fx-font-weight: bold;");
+        HBox totalBox = new HBox(10); // Horizontal layout for total and button
+        totalBox.setAlignment(Pos.CENTER_RIGHT); // Align elements to the right
 
-		
-		totalBox.getChildren().addAll(totalLabel, totalField, finalizeBillButton);
 
-		mainLayout.setTop(inputBox); 
-		mainLayout.setCenter(itemsContainer); 
-		mainLayout.setBottom(totalBox); 
+        Label totalLabel = new Label("Total:");
+        totalField = new TextField("0.00"); // Default value for total
+        totalField.setEditable(false); // Prevent user from editing the total
 
-		this.createBillController = new CreateBillController(itemsContainer, totalField, categoryDropdown, itemDropdown,
-				sector);
-		
-		addItemButton.setOnAction(event -> {
-			String selectedItemName = itemDropdown.getValue();
-			String quantityValue = quantityField.getText();
-			int selectedQuantity = quantityValue != "" ? Integer.parseInt(quantityField.getText()) : 1;
-			this.createBillController.addItemToBill(selectedItemName, selectedQuantity);
-		});
-		
-		finalizeBillButton.setOnAction(event -> {
-			this.createBillController.finalizeBill(this.cashier.getName(), this.sector.getName());
-		});
-		
-	}
+        // Button to finalize the bill
+        finalizeBillButton = new Button("Finalize Bill");
+        finalizeBillButton.setStyle("-fx-background-color: #28A745; -fx-text-fill: white; -fx-font-weight: bold;");
 
-	// Getters
-	public BorderPane getViewContent() {
-		return mainLayout;
-	}
 
-	public ComboBox<String> getCategoryDropdown() {
-		return categoryDropdown;
-	}
+        totalBox.getChildren().addAll(totalLabel, totalField, finalizeBillButton);
 
-	public ComboBox<String> getItemDropdown() {
-		return itemDropdown;
-	}
+        mainLayout.setTop(inputBox);
+        mainLayout.setCenter(itemsContainer);
+        mainLayout.setBottom(totalBox);
 
-	public TextField getQuantityField() {
-		return quantityField;
-	}
+        this.createBillController = new CreateBillController(itemsContainer, totalField, categoryDropdown, itemDropdown,
+                sector);
 
-	public TextField getTotalField() {
-		return totalField;
-	}
+        addItemButton.setOnAction(event -> {
+            String selectedItemName = itemDropdown.getValue();
+            String quantityValue = quantityField.getText();
+            
+            // --- FIXED LINE BELOW ---
+            // Changed '!=' to '!quantityValue.isEmpty()' to correctly check string content
+            int selectedQuantity = (quantityValue != null && !quantityValue.isEmpty()) 
+                                    ? Integer.parseInt(quantityValue) : 1;
+            
+            this.createBillController.addItemToBill(selectedItemName, selectedQuantity);
+        });
 
-	public Button getAddItemButton() {
-		return addItemButton;
-	}
+        finalizeBillButton.setOnAction(event -> {
+            // Added check to prevent NullPointerException if cashier is not set yet
+            String cashierName = (this.cashier != null) ? this.cashier.getName() : "Unknown";
+            this.createBillController.finalizeBill(cashierName, this.sector.getName());
+        });
 
-	public Button getFinalizeBillButton() {
-		return finalizeBillButton;
-	}
+    }
 
-	public VBox getItemsContainer() {
-		return itemsContainer;
-	}
+    // Getters
+    public BorderPane getViewContent() {
+        return mainLayout;
+    }
 
-	// Add an item to the items container
-	public void addItemToDisplay(String itemInfo) {
-		Label itemLabel = new Label(itemInfo);
-		itemsContainer.getChildren().add(itemLabel);
-	}
+    public ComboBox<String> getCategoryDropdown() {
+        return categoryDropdown;
+    }
 
-	// Update the total field
-	public void updateTotal(double total) {
-		totalField.setText(String.format("%.2f", total));
-	}
+    public ComboBox<String> getItemDropdown() {
+        return itemDropdown;
+    }
 
-	// Reset all fields to their initial state
-	public void resetView() {
-		itemsContainer.getChildren().clear();
-		totalField.setText("0.00");
-		categoryDropdown.getSelectionModel().clearSelection();
-		itemDropdown.getItems().clear();
-		quantityField.clear();
-	}
+    public TextField getQuantityField() {
+        return quantityField;
+    }
 
-	// Validate input fields
-	public boolean validateInputs() {
-		boolean isValid = true;
+    public TextField getTotalField() {
+        return totalField;
+    }
 
-		if (categoryDropdown.getValue() == null) {
-			categoryDropdown.setStyle("-fx-border-color: red;");
-			isValid = false;
-		} else {
-			categoryDropdown.setStyle(null);
-		}
+    public Button getAddItemButton() {
+        return addItemButton;
+    }
 
-		if (itemDropdown.getValue() == null) {
-			itemDropdown.setStyle("-fx-border-color: red;");
-			isValid = false;
-		} else {
-			itemDropdown.setStyle(null);
-		}
+    public Button getFinalizeBillButton() {
+        return finalizeBillButton;
+    }
 
-		if (quantityField.getText().isEmpty() || !quantityField.getText().matches("\\d+")) {
-			quantityField.setStyle("-fx-border-color: red;");
-			isValid = false;
-		} else {
-			quantityField.setStyle(null);
-		}
+    public VBox getItemsContainer() {
+        return itemsContainer;
+    }
 
-		return isValid;
-	}
+    // Add an item to the items container
+    public void addItemToDisplay(String itemInfo) {
+        Label itemLabel = new Label(itemInfo);
+        itemsContainer.getChildren().add(itemLabel);
+    }
 
-	public void setCashier(Cashier c) {
-		this.cashier = c;
-	}
+    // Update the total field
+    public void updateTotal(double total) {
+        totalField.setText(String.format("%.2f", total));
+    }
+
+    // Reset all fields to their initial state
+    public void resetView() {
+        itemsContainer.getChildren().clear();
+        totalField.setText("0.00");
+        categoryDropdown.getSelectionModel().clearSelection();
+        itemDropdown.getItems().clear();
+        quantityField.clear();
+    }
+
+    // Validate input fields
+    public boolean validateInputs() {
+        boolean isValid = true;
+
+        if (categoryDropdown.getValue() == null) {
+            categoryDropdown.setStyle("-fx-border-color: red;");
+            isValid = false;
+        } else {
+            categoryDropdown.setStyle(null);
+        }
+
+        if (itemDropdown.getValue() == null) {
+            itemDropdown.setStyle("-fx-border-color: red;");
+            isValid = false;
+        } else {
+            itemDropdown.setStyle(null);
+        }
+
+        if (quantityField.getText().isEmpty() || !quantityField.getText().matches("\\d+")) {
+            quantityField.setStyle("-fx-border-color: red;");
+            isValid = false;
+        } else {
+            quantityField.setStyle(null);
+        }
+
+        return isValid;
+    }
+
+    public void setCashier(Cashier c) {
+        this.cashier = c;
+    }
 }
