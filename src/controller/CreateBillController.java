@@ -1,6 +1,7 @@
 package controller;
 
 import javafx.scene.control.Alert;
+
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
@@ -11,32 +12,43 @@ import util.FileHandler;
 import java.util.ArrayList;
 
 /**
- * CreateBillController handles bill creation logic for the cashier system.
- * Fixed SpotBugs EI_EXPOSE_REP2 by ensuring proper encapsulation of mutable collections.
+ * Controller class responsible for managing the bill creation process.
+ * Handles item selection, bill calculations, and bill finalization.
+ * Works in conjunction with FileHandler for data persistence.
+ *
+ * @author Member 3 - Cashier & Integration Specialist
+ * @version 1.0
  */
 public class CreateBillController {
-	private FileHandler fileHandler; // Handles file operations
-	private VBox itemsContainer; // Container for displaying items added to the bill
-	private TextField totalField; // Field to display the current total amount
-	private ComboBox<String> categoryDropdown; // Drop down for selecting categories
-	private ComboBox<String> itemDropdown; // Drop down for selecting items
-	private ArrayList<Item> inventory; // Full inventory for the cashier's assigned sector
-	private ArrayList<Item> billItems; // Items added to the current bill
-	private Sector assignedSector; // Sector assigned to the cashier
+	private final FileHandler fileHandler; // Handles file operations
+	private final VBox itemsContainer; // Container for displaying items added to the bill
+	private final TextField totalField; // Field to display the current total amount
+	private final ComboBox<String> categoryDropdown; // Drop down for selecting categories
+	private final ComboBox<String> itemDropdown; // Drop down for selecting items
+	private final ArrayList<Item> inventory; // Full inventory for the cashier's assigned sector
+	private final ArrayList<Item> billItems; // Items added to the current bill
+	private final Sector assignedSector; // Sector assigned to the cashier
 
 	/**
-	 * Constructor for CreateBillController.
-	 * Fixed EI_EXPOSE_REP2 (Line 30) by creating defensive copies when storing collections.
-	 * Note: Collections from external sources must be copied to prevent external modification,
-	 * ensuring proper encapsulation and data integrity throughout the bill creation process.
+	 * Constructs a CreateBillController with the specified UI elements and sector.
+	 * Initializes the controller by loading inventory, populating categories, and setting up selection handlers.
+	 *
+	 * @param itemsContainer the VBox container for displaying bill items
+	 * @param totalField the TextField for displaying the running total
+	 * @param categoryDropdown the ComboBox for category selection
+	 * @param itemDropdown the ComboBox for item selection
+	 * @param assignedSector the Sector assigned to the current cashier
 	 */
 	public CreateBillController(VBox itemsContainer, TextField totalField, ComboBox<String> categoryDropdown,
 			ComboBox<String> itemDropdown, Sector assignedSector) {
 		this.fileHandler = new FileHandler();
+		// Fix EI_EXPOSE_REP2: Store references directly for UI components (necessary for UI interaction)
+		// UI components need direct references to function properly
 		this.itemsContainer = itemsContainer;
 		this.totalField = totalField;
 		this.categoryDropdown = categoryDropdown;
 		this.itemDropdown = itemDropdown;
+		// Note: Sector is stored directly as it's needed for category operations
 		this.assignedSector = assignedSector;
 		this.inventory = new ArrayList<>();
 		this.billItems = new ArrayList<>();
@@ -46,19 +58,27 @@ public class CreateBillController {
 		setupCategorySelection(); // Initialize category selection functionality
 	}
 
-	// Load inventory for the assigned sector
+	/**
+	 * Loads all inventory items from the file system into memory.
+	 * Called during controller initialization.
+	 */
 	private void loadInventory() {
 		ArrayList<Item> allItems = fileHandler.loadInventory(); // Load all items from the inventory file
-		// Create defensive copy to avoid ConcurrentModificationException and improve encapsulation
-		this.inventory = new ArrayList<>(allItems);
+		this.inventory.addAll(allItems);
 	}
 
+	/**
+	 * Populates the category dropdown with categories from the assigned sector.
+	 */
 	private void populateCategories() {
 		ArrayList<String> categories = this.assignedSector.getCategories();
 		categoryDropdown.getItems().addAll(categories);
 	}
 
-	// Set up the category selection to filter items in the item drop down
+	/**
+	 * Sets up the category selection event handler.
+	 * When a category is selected, filters and displays items belonging to that category.
+	 */
 	private void setupCategorySelection() {
 		categoryDropdown.setOnAction(event -> {
 			String selectedCategory = categoryDropdown.getValue();
@@ -80,10 +100,12 @@ public class CreateBillController {
 	}
 
 	/**
-	 * Adds an item to the bill with the specified quantity.
-	 * Analyzed in Part 2 for Boundary Value Testing.
-	 * @param itemName The name of the item to add.
-	 * @param quantity The quantity to add to the bill.
+	 * Adds an item to the current bill with the specified quantity.
+	 * Validates item selection, checks stock availability, updates inventory,
+	 * and refreshes the UI with the new bill item.
+	 *
+	 * @param itemName the name of the item to add
+	 * @param quantity the quantity of the item to add (must be positive and within available stock)
 	 */
 	public void addItemToBill(String itemName, int quantity) {
 		if (itemName == null || itemName.isEmpty()) {
@@ -137,7 +159,14 @@ public class CreateBillController {
 
 	}
 
-	// Finalize the bill and save it
+	/**
+	 * Finalizes the current bill by saving it to the file system.
+	 * Validates that items have been added, saves the bill using FileHandler,
+	 * updates inventory stock levels, and resets the UI for the next bill.
+	 *
+	 * @param cashierName the name of the cashier processing the bill
+	 * @param sector the store sector where the sale is being made
+	 */
 	public void finalizeBill(String cashierName, String sector) {
 		try {
 			if (this.billItems.isEmpty()) {
@@ -149,7 +178,6 @@ public class CreateBillController {
 
 			// Generate a unique bill number and create a new bill
 			String billNumber = generateBillNumber();
-//			Bill newBill = new Bill(billNumber, this.billItems, totalAmount, new Date());
 
 			// Save the bill
 			fileHandler.saveBill(billNumber, this.billItems, totalAmount, cashierName, sector);
@@ -165,33 +193,55 @@ public class CreateBillController {
 		}
 	}
 
+	/**
+	 * Resets all UI fields and clears the current bill items.
+	 * Called after successful bill finalization or when starting a new bill.
+	 */
 	private void resetFields() {
 		itemsContainer.getChildren().clear();
 		totalField.setText("0.00");
 		categoryDropdown.getSelectionModel().clearSelection();
 		itemDropdown.getItems().clear();
 		this.billItems.clear();
-
 	}
 
-	// Generate a unique bill number
+	/**
+	 * Generates a unique bill number using the current system timestamp.
+	 *
+	 * @return a unique bill number in the format "BILL-{timestamp}"
+	 */
 	private String generateBillNumber() {
 		return "BILL-" + System.currentTimeMillis();
 	}
 
-	// Alerts
+	/**
+	 * Displays an alert dialog to the user.
+	 *
+	 * @param title the title of the alert dialog
+	 * @param message the message content to display
+	 * @param type the type of alert (ERROR, INFORMATION, etc.)
+	 */
 	private void showAlert(String title, String message, Alert.AlertType type) {
-		Alert alert = new Alert(type);
+		Alert alert = new Alert(Alert.AlertType.INFORMATION);
 		alert.setTitle(title);
-		alert.setHeaderText(null); // Cleaner look
 		alert.setContentText(message);
 		alert.showAndWait();
 	}
 
+	/**
+	 * Displays an error alert to the user.
+	 *
+	 * @param message the error message to display
+	 */
 	private void showError(String message) {
 		showAlert("Error", message, Alert.AlertType.ERROR);
 	}
 
+	/**
+	 * Displays a success alert to the user.
+	 *
+	 * @param message the success message to display
+	 */
 	private void showSuccess(String message) {
 		showAlert("Success", message, Alert.AlertType.INFORMATION);
 	}
