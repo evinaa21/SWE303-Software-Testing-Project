@@ -4,34 +4,40 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
 import util.FileHandler;
 import java.io.BufferedReader;
-import java.io.FileReader;
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 /**
- * DailyBillsController handles daily sales reporting and analysis.
- * Fixed SpotBugs EI_EXPOSE_REP by ensuring proper encapsulation of mutable collections.
+ * Controller class for managing and displaying daily bills.
+ * Handles loading bills from the sales summary file and calculating sales metrics.
+ *
+ * @author Member 3 - Cashier & Integration Specialist
+ * @version 1.0
  */
 public class DailyBillsController {
     private final VBox billsContainer; // Container to display daily bills
     private ArrayList<String> dailyBills; // Cache for all daily bills
-    private final String summaryFilePath = "src/BinaryFiles/sales_summary.txt";
+    // Fix SS_SHOULD_BE_STATIC: Make path constant static as it doesn't change per instance
+    private static final String SUMMARY_FILE_PATH = "src/BinaryFiles/sales_summary.txt";
 
     /**
-     * Constructor for DailyBillsController.
-     * Fixed EI_EXPOSE_REP2 (Line 18) by assigning the reference.
-     * Note: In JavaFX, VBox containers are often singleton-like per controller,
-     * but we must ensure they are private and final to prevent external reassignment.
+     * Constructs a DailyBillsController with the specified bills container.
+     *
+     * @param billsContainer the VBox container for displaying bill information
      */
     public DailyBillsController(VBox billsContainer) {
         new FileHandler();
+        // Note: VBox reference stored directly as it's needed for UI updates
         this.billsContainer = billsContainer;
         this.dailyBills = new ArrayList<>();
     }
 
     /**
      * Loads and displays all bills generated today.
-     * Analyzed in Part 2 for Equivalence Class Partitioning.
+     * Retrieves bills from the summary file and renders them in the UI container.
      */
     public void showTodaysBills() {
         try {
@@ -42,19 +48,26 @@ public class DailyBillsController {
         }
     }
 
-    // Load bill data from the sales summary file
+    /**
+     * Loads bill data from the sales summary file.
+     *
+     * @return ArrayList of bill strings parsed from the summary file
+     * @throws IOException if the file cannot be read
+     */
     private ArrayList<String> loadBillsFromSummary() throws IOException {
         ArrayList<String> bills = new ArrayList<>();
-        try (BufferedReader reader = new BufferedReader(new FileReader(summaryFilePath))) {
+        // Fix DM_DEFAULT_ENCODING: Use explicit UTF-8 encoding instead of platform default
+        try (BufferedReader reader = new BufferedReader(
+                new InputStreamReader(new FileInputStream(SUMMARY_FILE_PATH), StandardCharsets.UTF_8))) {
             String line;
             StringBuilder currentBill = new StringBuilder();
-           
+
             while ((line = reader.readLine()) != null) {
-               
+
                 currentBill.append(line).append("\n");
                 if (line.contains("Cashier:")) {
-                    bills.add(currentBill.toString()); 
-                    currentBill.setLength(0); // Reset 
+                    bills.add(currentBill.toString());
+                    currentBill.setLength(0); // Reset
                 }
             }
         }
@@ -76,10 +89,7 @@ public class DailyBillsController {
         }
     }
 
-    /**
-     * Calculates and displays total sales for the day.
-     * Analyzed in Part 2 for Boundary Value Testing.
-     */
+   
     public void calculateTotalSales() {
         if (dailyBills.isEmpty()) {
             billsContainer.getChildren().add(new Label("No sales data available for today."));
@@ -105,20 +115,25 @@ public class DailyBillsController {
         billsContainer.getChildren().add(totalSalesLabel);
     }
 
-    // Calculate and display sales performance by cashier
+    /**
+     * Calculates and displays sales performance grouped by cashier.
+     * Reads the sales summary file and aggregates total sales for each cashier.
+     */
     public void calculateSalesByCashier() {
         ArrayList<String> cashierNames = new ArrayList<>();
         ArrayList<Double> cashierSales = new ArrayList<>();
 
-        try (BufferedReader reader = new BufferedReader(new FileReader(summaryFilePath))) {
+        // Fix DM_DEFAULT_ENCODING: Use explicit UTF-8 encoding instead of platform default
+        try (BufferedReader reader = new BufferedReader(
+                new InputStreamReader(new FileInputStream(SUMMARY_FILE_PATH), StandardCharsets.UTF_8))) {
             String line;
-          
+
             while ((line = reader.readLine()) != null) {
                 if (line.contains("Cashier:")) {
-                   
+
                     String[] parts = line.split("Total Amount: ");
                     if (parts.length > 1) {
-                        
+
                         String totalAmountStr = parts[1].split(",")[0].trim();
                         String cashierName = parts[1].split("Cashier:")[1].trim();
                         try {
@@ -127,7 +142,7 @@ public class DailyBillsController {
                             // Check if cashier already exists in the list
                             int index = cashierNames.indexOf(cashierName);
                             if (index != -1) {
-                                // Use removeIf pattern to avoid ConcurrentModificationException and improve readability
+                                // Add the total amount to the existing cashier's sales
                                 cashierSales.set(index, cashierSales.get(index) + totalAmount);
                             } else {
                                 // Add a new cashier and their sales
@@ -148,7 +163,12 @@ public class DailyBillsController {
         displaySalesByCashier(cashierNames, cashierSales);
     }
 
-    // Display sales 
+    /**
+     * Displays sales performance for each cashier in the UI container.
+     *
+     * @param cashierNames list of cashier names
+     * @param cashierSales list of corresponding sales totals
+     */
     private void displaySalesByCashier(ArrayList<String> cashierNames, ArrayList<Double> cashierSales) {
         billsContainer.getChildren().clear(); // Clear previous data
         if (cashierNames.isEmpty()) {
@@ -158,20 +178,14 @@ public class DailyBillsController {
 
         // total sales
         for (int i = 0; i < cashierNames.size(); i++) {
-            String cashierPerformance = String.format("Cashier: %s\nTotal Sales: %.2f", cashierNames.get(i), cashierSales.get(i));
+            // Fix VA_FORMAT_STRING_USES_NEWLINE: Use %n for platform-independent line separator
+            String cashierPerformance = String.format("Cashier: %s%nTotal Sales: %.2f", cashierNames.get(i), cashierSales.get(i));
             Label performanceLabel = new Label(cashierPerformance);
             performanceLabel.setStyle("-fx-padding: 10; -fx-border-color: lightgray; -fx-border-width: 1;");
             billsContainer.getChildren().add(performanceLabel);
         }
     }
 
-    /**
-     * Returns a defensive copy of daily bills.
-     * Fixed EI_EXPOSE_REP by returning a copy instead of direct reference.
-     * @return A copy of the daily bills list.
-     */
-    public ArrayList<String> getDailyBills() {
-        // Use removeIf pattern to avoid ConcurrentModificationException and improve readability
-        return new ArrayList<>(this.dailyBills);
-    }
+
 }
+
