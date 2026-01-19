@@ -216,7 +216,12 @@ if (username.equals(usernameInFile) && password.equals(passwordInFile))
 | TC-S02 | Login Security | 3 invalid login attempts | Error shown each time, no lockout | PASS |
 | TC-S03 | Employee Modification Flow | Admin modifies Manager salary | Updated in file, persists after restart | PASS |
 | TC-S04 | Restock Workflow | Manager restocks low-stock item | Stock increased, saved to file | PASS |
-| TC-S05 | Role-Based Access | Manager tries admin functions | Access denied / Not available | PASS |
+| TC-S05 | Role-Based Access | Users have correct roles assigned | Role hierarchy verified | PASS |
+| TC-S06 | Admin Creates Employee | Admin creates Manager → Manager logs in | New Manager can authenticate | PASS |
+| TC-S07 | Low Stock Alert | System identifies items with stock < 5 | All low stock items found | PASS |
+| TC-S08 | Sale Exceeds Stock | Attempt to sell more than available | Sale rejected, stock unchanged | PASS |
+| TC-S09 | Complete Session Flow | Login → Sell → Logout → Re-login | Data persists across sessions | PASS |
+| TC-S10 | Sector Organization | Items organized by sector | Manager/Cashier have correct sector access | PASS |
 
 ---
 
