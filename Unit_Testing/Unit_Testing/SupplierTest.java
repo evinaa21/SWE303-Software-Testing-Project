@@ -1,29 +1,33 @@
 package Unit_Testing;
 
 import org.junit.jupiter.api.Test;
-
 import model.Item;
 import model.Supplier;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 class SupplierTest {
 
+    // Verifies basic functionality works as written
     @Test
-    void addItem_shouldAddItemToSupplier() {
-        Supplier supplier = new Supplier("ACME");
-        Item item = new Item("Laptop", "Electronics", 1000.0, 5, "Tech", "Laptop", "ACME", "");
+    void testAddItem_ShouldAddToSuppliedItems_Pass() {
+        Supplier supplier = new Supplier("TechCorp");
+        Item item = new Item("Mouse", "Hardware", 20.0, 50, "Acc", "Wireless", "TechCorp", "");
 
         supplier.addItem(item);
 
-        assertTrue(supplier.getSuppliedItems().contains(item), "Supplier should contain the added item");
+        assertEquals(1, supplier.getSuppliedItems().size());
+        assertTrue(supplier.getSuppliedItems().contains(item));
     }
 
+    //  Fails because addItem() updates 'suppliedItems' but forgets to update 'itemIds'
     @Test
-    void getSuppliedItems_shouldNeverReturnNull() {
-        Supplier supplier = new Supplier("ACME");
+    void testAddItem_ShouldSyncItemIds_Fail() {
+        Supplier supplier = new Supplier("TechCorp");
+        Item item = new Item("Keyboard", "Hardware", 50.0, 20, "Acc", "Mechanical", "TechCorp", "");
 
-        assertNotNull(supplier.getSuppliedItems(), "getSuppliedItems should never return null");
-        assertTrue(supplier.getSuppliedItems().isEmpty(), "New supplier should start with empty supplied items list");
+        supplier.addItem(item);
+
+      
+        assertFalse(supplier.getItemIds().isEmpty(), "Item IDs list should be updated when an item is added");
     }
 }
