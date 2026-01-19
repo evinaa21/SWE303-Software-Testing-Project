@@ -47,5 +47,16 @@ public class ItemTest {
         Item item = new Item("Phone", "Electronics", 500.0, 10, 0);
         assertTrue(item.hasSufficientStock(10));
         assertFalse(item.hasSufficientStock(11));
+    }@Test
+    void testRestockItem_NegativeValueFail() {
+        Item item = new Item("Phone", "Electronics", 500.0, 10, 0);
+        
+        // This SHOULD fail or throw an exception in a robust system.
+        // If your current code just does "10 + (-5)", the stock becomes 5.
+        item.restockItem(-5);
+        
+        // We ASSERT that the stock should have remained 10 because -5 is invalid.
+        // This test will FAIL (Red Bar) because your code currently results in 5.
+        assertEquals(10, item.getStockQuantity(), "Restocking negative amounts should be blocked.");
     }
 }
