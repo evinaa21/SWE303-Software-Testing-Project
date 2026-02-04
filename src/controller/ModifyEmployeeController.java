@@ -132,9 +132,9 @@ public class ModifyEmployeeController {
 	
 	private Admin modifyToAdmin(User user, String username, String password, String email, double salary) {
 		Admin admin = new Admin();
-		admin.setUsername(username != "" ? username : user.getUsername());
-	    admin.setPassword(password != "" ? password : user.getPassword());
-	    admin.setEmail(email != "" ? email : user.getEmail());
+		admin.setUsername(!username.isEmpty() ? username : user.getUsername());
+	    admin.setPassword(!password.isEmpty() ? password : user.getPassword());
+	    admin.setEmail(!email.isEmpty() ? email : user.getEmail());
 
 	    admin.setId(user.getId());
 	    admin.setName(user.getName());
@@ -150,9 +150,9 @@ public class ModifyEmployeeController {
 		Manager manager = new Manager();
 	    
 	    
-	    manager.setUsername(username != "" ? username : user.getUsername());
-	    manager.setPassword(password != "" ? password : user.getPassword());
-	    manager.setEmail(email != "" ? email : user.getEmail());
+	    manager.setUsername(!username.isEmpty() ? username : user.getUsername());
+	    manager.setPassword(!password.isEmpty() ? password : user.getPassword());
+	    manager.setEmail(!email.isEmpty() ? email : user.getEmail());
 	    
 	    
 	    if (sectors != null && !sectors.isEmpty()) {
@@ -178,9 +178,9 @@ public class ModifyEmployeeController {
 	
 	private Cashier modifyToCashier(User user, String username, String password, String email, double salary, Sector sector) throws CredentialsException {
 		Cashier cashier = new Cashier();
-		cashier.setUsername(username != "" ? username : user.getUsername());
-	    cashier.setPassword(password != "" ? password : user.getPassword());
-	    cashier.setEmail(email != "" ? email : user.getEmail());
+		cashier.setUsername(!username.isEmpty() ? username : user.getUsername());
+	    cashier.setPassword(!password.isEmpty() ? password : user.getPassword());
+	    cashier.setEmail(!email.isEmpty() ? email : user.getEmail());
 	    
 	    
 	    if (sector != null) {

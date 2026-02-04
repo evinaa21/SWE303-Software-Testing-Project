@@ -64,11 +64,14 @@ public class LoginController {
 			    if (username.equals(usernameInFile) && password.equals(passwordInFile)) {
 			        // Create the ManagerController with the primary stage and Manager
 			        ManagerController managerController = new ManagerController(stage, (Manager) user);
-			        
+
 			        // Create the ManagerView, passing the ManagerController, primaryStage, Manager, and FileHandler
 			       new ManagerView(managerController, stage, (Manager) user, new FileHandlerMANAGER());
 
 			        // Set up the UI or additional logic if needed
+			        break;
+			    } else {
+			    	errorLabel();
 			    }
 			} else if (user instanceof Cashier) {
 				if (username.equals(usernameInFile) && password.equals(passwordInFile)) {
